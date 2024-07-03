@@ -51,7 +51,7 @@ dev_static_analysis:
     # Install the pylint
     - pip install pylint
     - echo "pylint instalado con exito, se prosigue a analizar el archivo"
-    - pylint */.py
+    - pylint app.py
   tags:
     - dev-docker-tag
 
