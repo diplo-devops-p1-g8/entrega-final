@@ -39,7 +39,7 @@ main_file_saving:
     - echo "Pull request is ready for aproval"
   tags:
   # este tag corresponde al runner que correra este job
-    - main-docker-tag
+    - dev-docker-tag
 
 # Este job se realiza solo para merge requests a dev y es para realizar un analisis estatico del codigo
 dev_static_analysis:
