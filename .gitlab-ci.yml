@@ -8,7 +8,7 @@ stages:
 variables:
   AWS_CLI_VERSION: "2.11.9"
   S3_BUCKET_NAME: "proyectodiplo"  
-  FILE_TO_UPLOAD: "ruta/del/archivo"   # Reemplaza con la ruta de tu archivo
+  FILE_TO_UPLOAD: "app.py"   # Reemplaza con la ruta de tu archivo
 
 before_script:
   # Actualiza pip a la última versión
