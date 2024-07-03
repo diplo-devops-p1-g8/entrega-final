@@ -3,7 +3,7 @@ image: python:3.9
 stages:
   - main_file_saving
   - dev_static_analysis
-  - dind
+#  - dind
 
 variables:
   AWS_CLI_VERSION: "2.11.9"
@@ -56,12 +56,12 @@ dev_static_analysis:
     - dev-docker-tag
 
 # Este job se realiza para usar docker in docker
-docker_in_docker:
-  stage: dind
-  only:
+#docker_in_docker:
+#  stage: dind
+#  only:
     # Aca aclaro que este job solo se ejecuta con merge a dev
-    - dind
-  script:
-    # Install the pylint
-  tags:
-    - dind-tag
+#    - dind
+#  script:
+#    # Install the pylint
+#  tags:
+#    - dind-tag
