@@ -1,13 +1,67 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/pipeline/#customization
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
+image: python:3.9
+
 stages:
-- test
-sast:
-  stage: test
-include:
-- template: Security/SAST.gitlab-ci.yml
+  - main_file_saving
+  - dev_static_analysis
+  - dind
+
+variables:
+  AWS_CLI_VERSION: "2.11.9"
+  S3_BUCKET_NAME: "proyectodiplo"  
+  FILE_TO_UPLOAD: "ruta/del/archivo"   # Reemplaza con la ruta de tu archivo
+
+before_script:
+  # Actualiza pip a la última versión
+  - python -m pip install --upgrade pip
+
+# Este job se realiza solo para merge requests a main
+main_file_saving:
+  stage: main_file_saving
+  only:
+    # Aca aclaro que este job solo se ejecuta con merge a dev
+    - main
+  script:
+    # Install the AWS CLI
+    - pip install awscli
+    - echo "AWS CLI installed"
+    # Verify the installed AWS CLI version
+    - aws --version == $AWS_CLI_VERSION
+    - echo "La versión instalada del CLI de AWS es $AWS_CLI_VERSION"
+    # Configura las credenciales de AWS (puedes usar variables de entorno para mayor seguridad)
+    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+    - aws configure set default.region $AWS_DEFAULT_REGION
+    - echo "AWS user access granted"
+    # Copia el archivo al bucket de S3 y sobrescribe si ya existe
+    - aws s3 cp $FILE_TO_UPLOAD s3://$S3_BUCKET_NAME/ --acl public-read
+    - echo "S3 bucket updated"
+    # Guardado de un archivo a mi bucket
+    - echo "Pull request is ready for aproval"
+  tags:
+  # este tag corresponde al runner que correra este job
+    - main-docker-tag
+
+# Este job se realiza solo para merge requests a dev y es para realizar un analisis estatico del codigo
+dev_static_analysis:
+  stage: dev_static_analysis
+  only:
+    # Aca aclaro que este job solo se ejecuta con merge a dev
+    - dev
+  script:
+    # Install the pylint
+    - pip install pylint
+    - echo "pylint instalado con exito, se prosigue a analizar el archivo"
+    - pylint */.py
+  tags:
+    - dev-docker-tag
+
+# Este job se realiza para usar docker in docker
+docker_in_docker:
+  stage: dind
+  only:
+    # Aca aclaro que este job solo se ejecuta con merge a dev
+    - dind
+  script:
+    # Install the pylint
+  tags:
+    - dind-tag
