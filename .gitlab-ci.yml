@@ -34,7 +34,7 @@ pylint-main:
   stage: test-main
   only: 
     - main
-    - merge_requests
+   # - merge_requests
   allow_failure: false
   script:
     # Install the pylint
@@ -49,7 +49,7 @@ funcionalidad-main:
   stage: test-main
   only:
     - main
-    - merge_requests
+    #- merge_requests
   allow_failure: false
   script:
     - echo "Esta es una mock test para mostrar el flujo de test de main."
@@ -62,7 +62,7 @@ regresion-main:
   stage: test-main
   only:
     - main
-    - merge_requests
+   # - merge_requests
   allow_failure: false
   script:
     - echo "Esta es una mock test para mostrar el flujo de test de main."
@@ -81,16 +81,16 @@ build-and-push-dockerfile:
     DOCKER_DRIVER: overlay2
   only:
     - main
-    - merge_requests
+   # - merge_requests
   allow_failure: false
   script:
     - echo "Autenticando a DockerHub..."
     - echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
     - docker build -t $REGISTRY_IMAGE:$CI_COMMIT_SHA .
     - docker push $REGISTRY_IMAGE:$CI_COMMIT_SHA
-  only:
-    - main
-    - merge_requests
+  #only:
+  #  - main
+  #  - merge_requests
   tags:
     - main-docker-tag
 
@@ -103,7 +103,7 @@ cleanup:
     - build-and-push-dockerfile
   only:
     - main
-    - merge_requests
+   # - merge_requests
   tags:
     - main-docker-tag
 
