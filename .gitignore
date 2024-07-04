@@ -1,0 +1,21 @@
+# Python
+*.pyo
+__pycache__/
+*.pyc
+.pylint.d/
+
+# Virtualenv
+venv/
+env/
+
+# Temporal
+.bak
+.swp
+
+# Editor files
+*.vscode/
+*.idea/
+*.sublime-*
+*.atom
+*.emacs
+*.vim
