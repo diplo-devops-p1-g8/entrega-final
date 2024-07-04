@@ -50,7 +50,8 @@ dev_static_analysis:
   script:
     # Install the pylint
     - pip install pylint
-    - echo "pylint instalado con exito, se prosigue a analizar el archivo"
+    - pip install -r requirements.txt 
+    - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
     - pylint app.py
   tags:
     - dev-docker-tag
