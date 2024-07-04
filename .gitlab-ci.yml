@@ -1,52 +1,26 @@
 image: python:3.9
 
 stages:
-  - main_file_saving
-  - dev_static_analysis
-#  - dind
+  - test-main
+  - test-dev
+  - build-main
 
 variables:
   AWS_CLI_VERSION: "2.11.9"
   S3_BUCKET_NAME: "proyectodiplo"  
   FILE_TO_UPLOAD: "app.py"   # Reemplaza con la ruta de tu archivo
+  DOCKER_USER: federicogfb
+  REGISTRY_IMAGE: federicogfb/tpfinal-lalo-grupo8
 
 before_script:
   # Actualiza pip a la última versión
   - python -m pip install --upgrade pip
 
-# Este job se realiza solo para merge requests a main
-main_file_saving:
-  stage: main_file_saving
-  only:
-    # Aca aclaro que este job solo se ejecuta con merge a dev
-    - main
-  script:
-    # Install the AWS CLI
-    - pip install awscli
-    - echo "AWS CLI installed"
-    # Verify the installed AWS CLI version
-    - aws --version == $AWS_CLI_VERSION
-    - echo "La versión instalada del CLI de AWS es $AWS_CLI_VERSION"
-    # Configura las credenciales de AWS (puedes usar variables de entorno para mayor seguridad)
-    - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-    - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-    - aws configure set default.region $AWS_DEFAULT_REGION
-    - echo "AWS user access granted"
-    # Copia el archivo al bucket de S3 y sobrescribe si ya existe
-    - aws s3 cp $FILE_TO_UPLOAD s3://$S3_BUCKET_NAME/ --acl public-read
-    - echo "S3 bucket updated"
-    # Guardado de un archivo a mi bucket
-    - echo "Pull request is ready for aproval"
-  tags:
-  # este tag corresponde al runner que correra este job
-    - dev-docker-tag
-
-# Este job se realiza solo para merge requests a dev y es para realizar un analisis estatico del codigo
-dev_static_analysis:
-  stage: dev_static_analysis
-  only:
-    # Aca aclaro que este job solo se ejecuta con merge a dev
+pylint-dev:
+  stage: test-dev
+  only: 
     - dev
+  allow_failure: false
   script:
     # Install the pylint
     - pip install pylint
@@ -55,6 +29,126 @@ dev_static_analysis:
     - pylint app.py
   tags:
     - dev-docker-tag
+
+pylint-main:
+  stage: test-main
+  only: 
+    - main
+    - merge_requests
+  allow_failure: false
+  script:
+    # Install the pylint
+    - pip install pylint
+    - pip install -r requirements.txt 
+    - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
+    - pylint app.py
+  tags:
+    - main-docker-tag
+
+funcionalidad-main:
+  stage: test-main
+  only:
+    - main
+    - merge_requests
+  allow_failure: false
+  script:
+    - echo "Esta es una mock test para mostrar el flujo de test de main."
+  dependencies:
+    - pylint-main
+  tags:
+    - main-docker-tag
+
+regresion-main:
+  stage: test-main
+  only:
+    - main
+    - merge_requests
+  allow_failure: false
+  script:
+    - echo "Esta es una mock test para mostrar el flujo de test de main."
+  dependencies:
+    - pylint-main
+    - funcionalidad-main
+  tags:
+    - main-docker-tag
+
+build-and-push-dockerfile:
+  stage: build-main
+  image: docker:27.07-cli
+  services:
+    - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+  only:
+    - main
+    - merge_requests
+  allow_failure: false
+  script:
+    - echo "Autenticando a DockerHub..."
+    - echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
+    - docker build -t $REGISTRY_IMAGE:$CI_COMMIT_SHA .
+    - docker push $REGISTRY_IMAGE:$CI_COMMIT_SHA
+  only:
+    - main
+    - merge_requests
+  tags:
+    - main-docker-tag
+
+cleanup:
+  stage: build-main
+  script:
+    - docker rmi $REGISTRY_IMAGE:$CI_COMMIT_SHA || true 
+  allow_failure: false
+  dependencies:
+    - build-and-push-dockerfile
+  only:
+    - main
+    - merge_requests
+  tags:
+    - main-docker-tag
+
+
+# Este job se realiza solo para merge requests a main
+# main_file_saving:
+#   stage: main_file_saving
+#   only:
+#     # Aca aclaro que este job solo se ejecuta con merge a dev
+#     - dev
+#   script:
+#     # Install the AWS CLI
+#     - pip install awscli
+#     - echo "AWS CLI installed"
+#     # Verify the installed AWS CLI version
+#     - aws --version == $AWS_CLI_VERSION
+#     - echo "La versión instalada del CLI de AWS es $AWS_CLI_VERSION"
+#     # Configura las credenciales de AWS (puedes usar variables de entorno para mayor seguridad)
+#     - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+#     - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+#     - aws configure set default.region $AWS_DEFAULT_REGION
+#     - echo "AWS user access granted"
+#     # Copia el archivo al bucket de S3 y sobrescribe si ya existe
+#     - aws s3 cp $FILE_TO_UPLOAD s3://$S3_BUCKET_NAME/ --acl public-read
+#     - echo "S3 bucket updated"
+#     # Guardado de un archivo a mi bucket
+#     - echo "Pull request is ready for aproval"
+#   tags:
+#   # este tag corresponde al runner que correra este job
+#     - dev-docker-tag
+
+# # Este job se realiza solo para merge requests a dev y es para realizar un analisis estatico del codigo
+# dev_static_analysis:
+#   stage: dev_static_analysis
+#   only:
+#     # Aca aclaro que este job solo se ejecuta con merge a dev
+#     - dev
+#   script:
+#     # Install the pylint
+#     - pip install pylint
+#     - pip install -r requirements.txt 
+#     - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
+#     - pylint app.py
+#   tags:
+#     - dev-docker-tag
 
 # Este job se realiza para usar docker in docker
 #docker_in_docker:
