@@ -112,17 +112,15 @@ build-and-push-dockerfile:
     - docker:dind
   variables:
     DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
       when: always
   allow_failure: false
   before_script: []
   script:
-    - unset DOCKER_HOST
-    - start docker
-    - enable docker
-    - restart docker
-    - dockerd
+    # - unset DOCKER_HOST
     - echo "Autenticando a DockerHub..."
     - echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
     - docker build -t $REGISTRY_IMAGE:$CI_COMMIT_SHA .
