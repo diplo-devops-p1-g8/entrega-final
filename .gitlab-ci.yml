@@ -120,7 +120,7 @@ build-and-push-dockerfile:
   allow_failure: false
   before_script: []
   script:
-    # - unset DOCKER_HOST
+    - unset DOCKER_HOST
     - echo "Autenticando a DockerHub..."
     - echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
     - docker build -t $REGISTRY_IMAGE:$CI_COMMIT_SHA .
