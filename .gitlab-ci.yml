@@ -1,14 +1,11 @@
 image: python:3.9
 
 stages:
-  - main_file_saving
-  - dev_static_analysis
-  - dind
+  - build
 
 variables:
   AWS_CLI_VERSION: "2.11.9"
   S3_BUCKET_NAME: "proyectodiplo"  
-  FILE_TO_UPLOAD: "ruta/del/archivo"   # Reemplaza con la ruta de tu archivo
 
 before_script:
   # Actualiza pip a la última versión
@@ -41,27 +38,4 @@ main_file_saving:
   # este tag corresponde al runner que correra este job
     - main-docker-tag
 
-# Este job se realiza solo para merge requests a dev y es para realizar un analisis estatico del codigo
-dev_static_analysis:
-  stage: dev_static_analysis
-  only:
-    # Aca aclaro que este job solo se ejecuta con merge a dev
-    - dev
-  script:
-    # Install the pylint
-    - pip install pylint
-    - echo "pylint instalado con exito, se prosigue a analizar el archivo"
-    - pylint */.py
-  tags:
-    - dev-docker-tag
 
-# Este job se realiza para usar docker in docker
-docker_in_docker:
-  stage: dind
-  only:
-    # Aca aclaro que este job solo se ejecuta con merge a dev
-    - dind
-  script:
-    # Install the pylint
-  tags:
-    - dind-tag
