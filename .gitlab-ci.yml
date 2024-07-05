@@ -119,7 +119,10 @@ build-and-push-dockerfile:
   before_script: []
   script:
     - unset DOCKER_HOST
-    - systemctl start docker
+    - sudo systemctl start docker
+    - sudo systemctl enable docker
+    - sudo systemctl restart docker
+    - sudo dockerd
     - echo "Autenticando a DockerHub..."
     - echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
     - docker build -t $REGISTRY_IMAGE:$CI_COMMIT_SHA .
