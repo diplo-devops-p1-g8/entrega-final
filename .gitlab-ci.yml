@@ -44,8 +44,9 @@ pylint:
     - echo "corriendo runner en $RUNNER_TAG"
     - pip install pylint
     - pip install -r requirements.txt 
-    - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
+    - echo "Comprobación de pylint e instalación de requerimientos"
     - pylint app.py --fail-under=4
+    - echo "Supero el requisito mínimo descripto"
   tags:
     - $RUNNER_TAG
 
@@ -85,7 +86,7 @@ funcionalidad-main:
       when: always
   allow_failure: false
   script:
-    - echo "Esta es una mock test para mostrar el flujo de test de main."
+    - echo "Este es una mock test para mostrar el flujo de test de main."
   dependencies:
     - pylint
   tags:
