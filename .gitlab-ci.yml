@@ -1,9 +1,11 @@
 image: python:3.9
 
 stages:
-  - test-main
-  - test-dev
-  - build-main
+  # - test-main
+  # - test-dev
+  # - build-main
+  - test
+  - build
 
 variables:
   AWS_CLI_VERSION: "2.11.9"
@@ -11,77 +13,108 @@ variables:
   FILE_TO_UPLOAD: "app.py"   # Reemplaza con la ruta de tu archivo
   DOCKER_USER: federicogfb
   REGISTRY_IMAGE: federicogfb/tpfinal-lalo-grupo8
+  RUNNER_TAG: ""
+
+workflow:
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      variables:
+        RUNNER_TAG: "main"
+      when: always
+    - if: $CI_COMMIT_BRANCH == "dev"
+      variables:
+        RUNNER_TAG: "dev"
+      when: always
+    
 
 before_script:
   # Actualiza pip a la última versión
   - python -m pip install --upgrade pip
 
-pylint-dev:
-  stage: test-dev
-  only: 
-    - dev
+pylint:
+  stage: test
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: always
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: always
   allow_failure: false
-  script:
+  script: 
     # Install the pylint
+    - echo "corriendo runner en $RUNNER_TAG"
     - pip install pylint
     - pip install -r requirements.txt 
     - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
     - pylint app.py
   tags:
-    - dev-docker-tag
+    - $RUNNER_TAG
 
-pylint-main:
-  stage: test-main
-  only: 
-    - main
-    - merge_requests
-  allow_failure: false
-  script:
-    # Install the pylint
-    - pip install pylint
-    - pip install -r requirements.txt 
-    - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
-    - pylint app.py
-  tags:
-    - main-docker-tag
+# pylint-dev:
+#   stage: test-dev
+#   only: 
+#     - dev
+#   allow_failure: false
+#   script:
+#     # Install the pylint
+#     - pip install pylint
+#     - pip install -r requirements.txt 
+#     - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
+#     - pylint app.py
+#   tags:
+#     - dev-docker-tag
+
+# pylint-main:
+#   stage: test-main
+#   only: 
+#     - main
+#     - merge_requests
+#   allow_failure: false
+#   script:
+#     # Install the pylint
+#     - pip install pylint
+#     - pip install -r requirements.txt 
+#     - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
+#     - pylint app.py
+#   tags:
+#     - main-docker-tag
 
 funcionalidad-main:
-  stage: test-main
-  only:
-    - main
-    - merge_requests
+  stage: test
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: always
   allow_failure: false
   script:
     - echo "Esta es una mock test para mostrar el flujo de test de main."
   dependencies:
-    - pylint-main
+    - pylint
   tags:
-    - main-docker-tag
+    - $RUNNER_TAG
 
 regresion-main:
-  stage: test-main
-  only:
-    - main
-    - merge_requests
+  stage: test
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: always
   allow_failure: false
   script:
     - echo "Esta es una mock test para mostrar el flujo de test de main."
   dependencies:
-    - pylint-main
+    - pylint
     - funcionalidad-main
   tags:
-    - main-docker-tag
+    - $RUNNER_TAG
 
 build-and-push-dockerfile:
-  stage: build-main
+  stage: build
   image: docker:27.07-cli
   services:
     - docker:dind
   variables:
     DOCKER_DRIVER: overlay2
-  only:
-    - main
-    - merge_requests
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: always
   allow_failure: false
   script:
     - echo "Autenticando a DockerHub..."
@@ -89,20 +122,20 @@ build-and-push-dockerfile:
     - docker build -t $REGISTRY_IMAGE:$CI_COMMIT_SHA .
     - docker push $REGISTRY_IMAGE:$CI_COMMIT_SHA
   tags:
-    - main-docker-tag
+    - $RUNNER_TAG
 
 cleanup:
-  stage: build-main
+  stage: build
   script:
     - docker rmi $REGISTRY_IMAGE:$CI_COMMIT_SHA || true 
   allow_failure: false
   dependencies:
     - build-and-push-dockerfile
-  only:
-    - main
-    - merge_requests
+  rules:
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+      when: always
   tags:
-    - main-docker-tag
+    - $RUNNER_TAG
 
 
 # Este job se realiza solo para merge requests a main
