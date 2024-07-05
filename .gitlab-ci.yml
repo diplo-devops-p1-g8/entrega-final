@@ -107,7 +107,7 @@ regresion-main:
 
 build-and-push-dockerfile:
   stage: build
-  image: docker:27.07-cli
+  image: docker:latest
   services:
     - docker:dind
   variables:
