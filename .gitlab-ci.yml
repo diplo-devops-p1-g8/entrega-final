@@ -45,7 +45,7 @@ pylint:
     - pip install pylint
     - pip install -r requirements.txt 
     - echo "pylint y los requerimientos fueron instalados con exito, se prosigue a analizar el archivo"
-    - pylint app.py
+    - pylint app.py --fail-under=4
   tags:
     - $RUNNER_TAG
 
