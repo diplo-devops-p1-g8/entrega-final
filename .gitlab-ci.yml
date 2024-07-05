@@ -109,10 +109,10 @@ build-and-push-dockerfile:
   stage: build
   image: docker:latest
   services:
-    - docker:19.03.0-dind
+    - docker:dind
   variables:
     DOCKER_DRIVER: overlay2
-    # DOCKER_HOST: tcp://localhost:2375
+    DOCKER_HOST: tcp://localhost:2375
     DOCKER_TLS_CERTDIR: ""
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
