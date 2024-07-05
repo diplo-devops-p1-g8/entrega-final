@@ -116,6 +116,7 @@ build-and-push-dockerfile:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
       when: always
   allow_failure: false
+  before_script: []
   script:
     - echo "Autenticando a DockerHub..."
     - echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
@@ -126,6 +127,7 @@ build-and-push-dockerfile:
 
 cleanup:
   stage: build
+  before_script: []
   script:
     - docker rmi $REGISTRY_IMAGE:$CI_COMMIT_SHA || true 
   allow_failure: false
