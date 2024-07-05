@@ -119,9 +119,9 @@ build-and-push-dockerfile:
   before_script: []
   script:
     - unset DOCKER_HOST
-    - systemctl start docker
-    - systemctl enable docker
-    - systemctl restart docker
+    - start docker
+    - enable docker
+    - restart docker
     - dockerd
     - echo "Autenticando a DockerHub..."
     - echo "$DOCKER_PASS" | docker login -u $DOCKER_USER --password-stdin
