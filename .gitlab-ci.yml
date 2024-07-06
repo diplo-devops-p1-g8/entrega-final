@@ -108,13 +108,13 @@ regresion-main:
 
 build-and-push-dockerfile:
   stage: build
-  image: docker:24.0.2-cli
+  image: docker:stable
   services:
-    - docker:24.0.2-dind
+    - docker:stable-dind
   variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://localhost:2376
-    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_DRIVER: overlay
+    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_TLS_CERTDIR: ""
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
       when: always
