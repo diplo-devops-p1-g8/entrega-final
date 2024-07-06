@@ -113,7 +113,7 @@ build-and-push-dockerfile:
     - docker:24.0.2-dind
   variables:
     DOCKER_DRIVER: overlay2
-    DOCKER_HOST: tcp://localhost:2375
+    DOCKER_HOST: tcp://localhost:2376
     DOCKER_TLS_CERTDIR: "/certs"
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
