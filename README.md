@@ -1,11 +1,8 @@
 Calidad en el Ciclo de Vida del Desarrollo de Software
 
-\
-
-
 Trabajo Práctico Final
 
-Profesor Lalo Miranda
+Profesor: Lalo Miranda
 
 Grupo 8
 
@@ -17,23 +14,8 @@ del Corro Ignacio
 
 Fernandez Federico
 
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
 
-
+#
 
 # Índice:
 
@@ -54,26 +36,8 @@ Fernandez Federico
 
 [2.7 Flujo de Despliegue](https://docs.google.com/document/d/1nmq5kSsv1A1zcvO6ly_Lf4QP4GzCEzoSWILOpp9yQM4/edit#heading=h.95vqxvdr5tg) 
 
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
-\
 
-
+#
 
 # 1. Consigna:
 
