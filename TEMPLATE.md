@@ -1,5 +1,7 @@
 [This is a template for P1G8 Saas's change proposal process, project documented [here](https://github.com/diplo-devops-p1-g8/entrega-final).]
 
+[The branch name regex should match: ^(proposals|reports)\/([a-zA-Z0-9]+)-?([a-zA-Z0-9]+)?$]
+
 # Proposal: [Title]
 
 Author(s): [Author Name, Co-Author Name]
